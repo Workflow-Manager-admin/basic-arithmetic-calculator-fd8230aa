@@ -249,38 +249,40 @@ function App() {
   }, []);
 
   // Button layout (label, onClick, aria)
+  // -- Updated to an improved grid: C (clear) and backspace moved to top for quick access, then digits in classic phone-style grid, ops always to the right, equals is full-width below.
   const buttons = [
+    [
+      { label: "C", onClick: handleClear, className: "clear-btn", ariaLabel: "Clear/Reset" },
+      { label: "⌫", onClick: handleBackspace, ariaLabel: "Backspace" },
+      { label: "÷", onClick: () => inputOperator("/"), className: "op-btn", ariaLabel: "divide" },
+    ],
     [
       { label: "7", onClick: () => inputDigit("7") },
       { label: "8", onClick: () => inputDigit("8") },
       { label: "9", onClick: () => inputDigit("9") },
-      { label: "÷", onClick: () => inputOperator("/") , className: "op-btn", ariaLabel: "divide"},
+      { label: "×", onClick: () => inputOperator("*"), className: "op-btn", ariaLabel: "multiply" },
     ],
     [
       { label: "4", onClick: () => inputDigit("4") },
       { label: "5", onClick: () => inputDigit("5") },
       { label: "6", onClick: () => inputDigit("6") },
-      { label: "×", onClick: () => inputOperator("*"), className: "op-btn", ariaLabel: "multiply"},
+      { label: "−", onClick: () => inputOperator("-"), className: "op-btn", ariaLabel: "subtract" },
     ],
     [
       { label: "1", onClick: () => inputDigit("1") },
       { label: "2", onClick: () => inputDigit("2") },
       { label: "3", onClick: () => inputDigit("3") },
-      { label: "−", onClick: () => inputOperator("-"), className: "op-btn", ariaLabel: "subtract"},
+      { label: "+", onClick: () => inputOperator("+"), className: "op-btn", ariaLabel: "add" },
     ],
     [
       { label: "0", onClick: () => inputDigit("0"), className: "zero" },
-      { label: ".", onClick: () => inputDot(), ariaLabel: "decimal"},
-      { label: "=", onClick: handleEquals, className: "eq-btn", ariaLabel: "equals"},
-      { label: "+", onClick: () => inputOperator("+"), className: "op-btn", ariaLabel: "add"},
-    ],
-    [
-      { label: "C", onClick: handleClear, className: "clear-btn", ariaLabel: "Clear/Reset" },
-      { label: "⌫", onClick: handleBackspace, ariaLabel: "Backspace" }
+      { label: ".", onClick: () => inputDot(), ariaLabel: "decimal" },
+      { label: "=", onClick: handleEquals, className: "eq-btn wide-eq", ariaLabel: "equals" },
     ]
   ];
 
   // Render
+  // Modern minimal: calculator panel centered, history now *below* calculator (on desktop and mobile, for simplicity).
   return (
     <div className="calc-root" ref={wrapperRef}>
       <main className="calc-main">
@@ -289,7 +291,7 @@ function App() {
             {display}
           </div>
           <div className="calc-buttons" role="group" aria-label="Calculator keypad">
-            {buttons.slice(0,4).map((row, i) => (
+            {buttons.slice(0, 4).map((row, i) => (
               <div key={`row${i}`} className="calc-row">
                 {row.map((btn, j) => (
                   <CalculatorButton
@@ -301,37 +303,39 @@ function App() {
                 ))}
               </div>
             ))}
-            <div className="calc-row misc-row">
-              {buttons[4].map(btn => (
-                <CalculatorButton
-                  key={btn.label}
-                  {...btn}
-                >
-                  {btn.label}
-                </CalculatorButton>
-              ))}
+            {/* Equals row: spans two columns for wide = */}
+            <div className="calc-row">
+              <CalculatorButton {...buttons[4][0]}>
+                {buttons[4][0].label}
+              </CalculatorButton>
+              <CalculatorButton {...buttons[4][1]}>
+                {buttons[4][1].label}
+              </CalculatorButton>
+              <CalculatorButton {...buttons[4][2]} className="eq-btn wide-eq">
+                {buttons[4][2].label}
+              </CalculatorButton>
             </div>
           </div>
         </section>
-        <aside className="calc-history-panel" aria-label="Session Calculation History">
-          <div className="calc-history-title">History</div>
-          <ul className="calc-history-list">
-            {history.length === 0 && (
-              <li className="calc-history-item calc-history-empty">No calculations yet.</li>
-            )}
-            {history.slice(-10).reverse().map((item, idx) => (
-              <li className="calc-history-item" key={history.length - idx - 1}>
-                <span className="calc-history-expr">
-                  {item.expr}
-                </span>
-                <span className="calc-history-result">
-                  = {formatNum(item.result)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </aside>
       </main>
+      <aside className="calc-history-panel" aria-label="Session Calculation History">
+        <div className="calc-history-title">History</div>
+        <ul className="calc-history-list">
+          {history.length === 0 && (
+            <li className="calc-history-item calc-history-empty">No calculations yet.</li>
+          )}
+          {history.slice(-10).reverse().map((item, idx) => (
+            <li className="calc-history-item" key={history.length - idx - 1}>
+              <span className="calc-history-expr">
+                {item.expr}
+              </span>
+              <span className="calc-history-result">
+                = {formatNum(item.result)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </aside>
       <footer className="calc-footer">
         <span className="credits">
           Web Calculator &mdash; Modern Minimal React &copy; 2024
